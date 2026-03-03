@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/food_model.dart';
-// import 'food_rating_widget.dart';
+import 'food_rating_widget.dart';
 
 class FoodItemCard extends StatelessWidget {
   final FoodItem food;

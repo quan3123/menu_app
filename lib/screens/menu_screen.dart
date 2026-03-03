@@ -23,6 +23,7 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
+    String _searchQuery = '';
   LoadingState _state = LoadingState.initial;
   List<FoodItem> _foods = [];
   String _error = '';
@@ -112,10 +113,33 @@ class _MenuScreenState extends State<MenuScreen> {
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
         elevation: 4,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Tìm kiếm món ăn...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.trim();
+                });
+              },
+            ),
+          ),
+        ),
       ),
       body: Column(
         children: [
-          // Category filter button (luôn hiển thị nếu đã từng lấy được danh mục)
           if (_categories.isNotEmpty)
             Container(
               padding: const EdgeInsets.all(12),
@@ -163,7 +187,6 @@ class _MenuScreenState extends State<MenuScreen> {
                 },
               ),
             ),
-          // Main content area
           Expanded(
             child: _buildContent(),
           ),
@@ -201,7 +224,10 @@ class _MenuScreenState extends State<MenuScreen> {
         );
 
       case LoadingState.success:
-        if (_foods.isEmpty) {
+        final filteredFoods = _searchQuery.isEmpty
+            ? _foods
+            : _foods.where((f) => f.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+        if (filteredFoods.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -232,10 +258,10 @@ class _MenuScreenState extends State<MenuScreen> {
             mainAxisSpacing: 8,
             childAspectRatio: 0.75,
           ),
-          itemCount: _foods.length,
+          itemCount: filteredFoods.length,
           itemBuilder: (context, index) {
             return FoodItemCard(
-              food: _foods[index],
+              food: filteredFoods[index],
               onTap: () async {
                 showDialog(
                   context: context,
@@ -243,7 +269,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   builder: (_) => const Center(child: CircularProgressIndicator()),
                 );
                 try {
-                  final detail = await ApiService.fetchMealDetail(_foods[index].id);
+                  final detail = await ApiService.fetchMealDetail(filteredFoods[index].id);
                   if (context.mounted) {
                     Navigator.of(context).pop(); // remove loading
                     Navigator.of(context).push(

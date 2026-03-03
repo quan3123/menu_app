@@ -64,6 +64,21 @@ class FoodDetailScreen extends StatelessWidget {
                         ),
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Nguyên liệu',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ...food.ingredients.map(
+                    (ing) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text('- $ing', style: const TextStyle(fontSize: 14)),
+                    ),
+                  ),
                 ],
               ),
             ),
